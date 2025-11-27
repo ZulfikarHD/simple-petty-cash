@@ -1,0 +1,96 @@
+---
+alwaysApply: true
+---
+docs/
+├── README.md                                 # Main documentation index
+│
+├── 01-project-overview/
+│   ├── project-charter.md                    # Project goals, scope, stakeholders
+│   ├── business-requirements.md              # Business needs and objectives
+│   ├── glossary.md                           # Terms and definitions
+│   └── project-timeline.md                   # High-level timeline and milestones
+│
+├── 02-requirements/
+│   ├── functional-requirements.md            # Detailed feature requirements
+│   ├── non-functional-requirements.md        # Performance, security, scalability
+│   ├── user-stories.md                       # All user stories compiled
+│   └── acceptance-criteria.md                # Success criteria for features
+│
+├── 03-design/
+│   ├── system-architecture.md                # High-level system design
+│   ├── database-schema.md                    # ERD and table structures
+│   ├── api-design.md                         # API endpoints and specifications
+│   ├── ui-ux/
+│   │   ├── wireframes/                       # Low-fidelity wireframes
+│   │   ├── mockups/                          # High-fidelity designs
+│   │   ├── design-system.md                  # Colors, typography, components
+│   │   └── user-flows.md                     # User journey diagrams
+│   └── security-design.md                    # Security architecture
+│
+├── 04-technical/
+│   ├── setup-guide.md                        # Development environment setup
+│   ├── coding-standards.md                   # Code style and conventions
+│   ├── git-workflow.md                       # Branching strategy, commit rules
+│   ├── testing-strategy.md                   # Testing approach and standards
+│   ├── deployment-guide.md                   # Deployment procedures
+│   └── infrastructure.md                     # Server, hosting, services used
+│
+├── 05-api-documentation/
+│   ├── api-overview.md                       # API general information
+│   ├── authentication.md                     # Auth endpoints and flow
+│   ├── endpoints/
+│   │   ├── transactions.md                   # Transaction endpoints
+│   │   ├── users.md                          # User management endpoints
+│   │   ├── categories.md                     # Category endpoints
+│   │   ├── reports.md                        # Reporting endpoints
+│   │   └── ...
+│   ├── error-codes.md                        # API error responses
+│   └── postman-collection.json               # Postman collection file
+│
+├── 06-user-guides/
+│   ├── user-manual.md                        # Complete user guide
+│   ├── admin-guide.md                        # Admin-specific guide
+│   ├── quick-start.md                        # Getting started guide
+│   ├── faq.md                                # Frequently asked questions
+│   └── troubleshooting.md                    # Common issues and solutions
+│
+├── 07-development/
+│   ├── sprint-planning/
+│   │   ├── sprint-01.md                      # Sprint 1 planning notes
+│   │   ├── sprint-02.md                      # Sprint 2 planning notes
+│   │   └── ...
+│   ├── technical-decisions.md                # ADR (Architecture Decision Records)
+│   ├── code-review-guidelines.md             # Code review checklist
+│   └── changelog.md                          # Version history and changes
+│
+├── 08-testing/
+│   ├── test-plan.md                          # Overall testing strategy
+│   ├── test-cases/
+│   │   ├── authentication-tests.md           # Auth test cases
+│   │   ├── transaction-tests.md              # Transaction test cases
+│   │   └── ...
+│   ├── bug-reports/                          # Bug tracking and reports
+│   └── uat-results.md                        # User acceptance testing results
+│
+├── 09-operations/
+│   ├── monitoring.md                         # Monitoring and logging setup
+│   ├── backup-recovery.md                    # Backup and recovery procedures
+│   ├── maintenance.md                        # Maintenance procedures
+│   ├── scaling-guide.md                      # Scaling strategies
+│   └── incident-response.md                  # Incident handling procedures
+│
+├── 10-meetings/
+│   ├── sprint-reviews/
+│   │   ├── sprint-01-review.md
+│   │   └── ...
+│   ├── retrospectives/
+│   │   ├── sprint-01-retro.md
+│   │   └── ...
+│   └── stakeholder-meetings/
+│       └── meeting-notes-YYYY-MM-DD.md
+│
+└── 11-assets/
+    ├── diagrams/                             # Architecture diagrams, flowcharts
+    ├── screenshots/                          # Application screenshots
+    ├── templates/                            # Document templates
+    └── presentations/                        # Project presentations
