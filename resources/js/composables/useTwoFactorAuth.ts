@@ -1,5 +1,9 @@
-import { qrCode, recoveryCodes, secretKey } from '@/routes/two-factor';
 import { computed, ref } from 'vue';
+
+// 2FA is currently disabled - these are placeholder URL helpers
+const qrCode = { url: () => '/user/two-factor-qr-code' };
+const secretKey = { url: () => '/user/two-factor-secret-key' };
+const recoveryCodes = { url: () => '/user/two-factor-recovery-codes' };
 
 const fetchJson = async <T>(url: string): Promise<T> => {
     const response = await fetch(url, {

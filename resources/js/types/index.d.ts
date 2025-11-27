@@ -36,4 +36,67 @@ export interface User {
     updated_at: string;
 }
 
+export interface Category {
+    id: number;
+    name: string;
+    icon: string | null;
+    color: string | null;
+    is_default: boolean;
+    user_id: number | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface Transaction {
+    id: number;
+    amount: string;
+    description: string;
+    transaction_date: string;
+    category_id: number;
+    user_id: number;
+    category?: Category;
+    user?: User;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface CashFund {
+    id: number;
+    amount: string;
+    note: string | null;
+    fund_date: string;
+    user_id: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface SpendingByCategory {
+    category_id: number;
+    category_name: string;
+    category_color: string;
+    total: string;
+}
+
+export interface PaginationLink {
+    url: string | null;
+    label: string;
+    active: boolean;
+}
+
+export interface PaginatedData<T> {
+    data: T[];
+    current_page: number;
+    first_page_url: string;
+    from: number | null;
+    last_page: number;
+    last_page_url: string;
+    links: PaginationLink[];
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number | null;
+    total: number;
+}
+
 export type BreadcrumbItemType = BreadcrumbItem;

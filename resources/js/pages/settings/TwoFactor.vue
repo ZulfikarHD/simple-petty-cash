@@ -7,11 +7,15 @@ import { Button } from '@/components/ui/button';
 import { useTwoFactorAuth } from '@/composables/useTwoFactorAuth';
 import AppLayout from '@/layouts/AppLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
-import { disable, enable, show } from '@/routes/two-factor';
 import { BreadcrumbItem } from '@/types';
 import { Form, Head } from '@inertiajs/vue3';
 import { ShieldBan, ShieldCheck } from 'lucide-vue-next';
 import { onUnmounted, ref } from 'vue';
+
+// 2FA is currently disabled - these are placeholders
+const show = { url: () => '/settings/two-factor' };
+const enable = { form: () => ({ action: '/user/two-factor-authentication', method: 'post' }) };
+const disable = { form: () => ({ action: '/user/two-factor-authentication', method: 'delete' }) };
 
 interface Props {
     requiresConfirmation?: boolean;

@@ -8,9 +8,13 @@ import {
     PinInputSlot,
 } from '@/components/ui/pin-input';
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { store } from '@/routes/two-factor/login';
 import { Form, Head } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
+
+// 2FA is currently disabled - this is a placeholder
+const store = {
+    form: () => ({ action: '/two-factor-challenge', method: 'post' }),
+};
 
 interface AuthConfigContent {
     title: string;
