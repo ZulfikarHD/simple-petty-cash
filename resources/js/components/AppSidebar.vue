@@ -15,10 +15,15 @@ import { dashboard } from '@/routes';
 import { index as transactionsIndex, create as createTransaction } from '@/actions/App/Http/Controllers/TransactionController';
 import { create as createCashFund } from '@/actions/App/Http/Controllers/CashFundController';
 import { index as reportsIndex } from '@/actions/App/Http/Controllers/ReportController';
+import { index as usersIndex } from '@/actions/App/Http/Controllers/UserController';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, FileBarChart, Folder, LayoutGrid, List, Plus, Wallet } from 'lucide-vue-next';
+import { Link, usePage } from '@inertiajs/vue3';
+import { BookOpen, FileBarChart, Folder, LayoutGrid, List, Plus, Users, Wallet } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
+import { computed } from 'vue';
+
+const page = usePage();
+const isAdmin = computed(() => page.props.auth?.user?.is_admin ?? false);
 
 const mainNavItems: NavItem[] = [
     {
@@ -48,15 +53,23 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
+const adminNavItems: NavItem[] = [
+    {
+        title: 'Kelola User',
+        href: usersIndex(),
+        icon: Users,
+    },
+];
+
 const footerNavItems: NavItem[] = [
     {
-        title: 'Github Repo',
-        href: 'https://github.com/laravel/vue-starter-kit',
+        title: 'GitHub Repo',
+        href: 'https://github.com/ZulfikarHD/simple-petty-cash',
         icon: Folder,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
+        title: 'Dokumentasi',
+        href: 'https://github.com/ZulfikarHD/simple-petty-cash#readme',
         icon: BookOpen,
     },
 ];
@@ -78,6 +91,7 @@ const footerNavItems: NavItem[] = [
 
         <SidebarContent>
             <NavMain :items="mainNavItems" />
+            <NavMain v-if="isAdmin" :items="adminNavItems" label="Admin" />
         </SidebarContent>
 
         <SidebarFooter>

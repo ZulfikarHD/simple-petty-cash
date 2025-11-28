@@ -40,6 +40,7 @@ Petty Cash App merupakan aplikasi manajemen kas kecil berbasis web yang bertujua
 - [Transactions](./05-api-documentation/endpoints/transactions.md) - Endpoint transaksi
 - [Categories](./05-api-documentation/endpoints/categories.md) - Endpoint kategori
 - [Cash Funds](./05-api-documentation/endpoints/cash-funds.md) - Endpoint dana kas
+- [Users](./05-api-documentation/endpoints/users.md) - Endpoint user management (Admin)
 - [Error Codes](./05-api-documentation/error-codes.md) - Response error API
 
 ### 6. User Guides
@@ -79,13 +80,16 @@ Petty Cash App merupakan aplikasi manajemen kas kecil berbasis web yang bertujua
 
 ## Quick Links
 
-- **Repository**: [GitHub](https://github.com/laravel/vue-starter-kit)
-- **Issue Tracker**: GitHub Issues
+- **Repository**: [GitHub](https://github.com/ZulfikarHD/simple-petty-cash)
+- **Issue Tracker**: [GitHub Issues](https://github.com/ZulfikarHD/simple-petty-cash/issues)
 - **CI/CD**: GitHub Actions
 
 ## Kontak Tim
 
-Untuk pertanyaan teknis atau feedback, silakan hubungi tim development melalui issue tracker atau email.
+**Author:** Zulfikar Hidayatullah  
+**Contact:** +62 857-1583-8733
+
+Untuk pertanyaan teknis atau feedback, silakan hubungi melalui issue tracker atau kontak di atas.
 
 ---
 

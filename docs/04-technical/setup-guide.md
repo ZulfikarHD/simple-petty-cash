@@ -42,7 +42,7 @@ php -m
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/your-repo/simple-petty-cash.git
+git clone https://github.com/ZulfikarHD/simple-petty-cash.git
 cd simple-petty-cash
 ```
 

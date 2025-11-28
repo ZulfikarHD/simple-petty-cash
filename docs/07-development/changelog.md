@@ -18,6 +18,79 @@ Format changelog mengikuti [Keep a Changelog](https://keepachangelog.com/en/1.0.
 
 ---
 
+## [0.4.0] - 2025-11-28
+
+### Added
+
+#### User Management CRUD (Admin Only)
+- **User List Page**: Halaman daftar user dengan iOS-style design:
+  - Search by nama atau email
+  - Filter by role (Admin/User)
+  - Statistik cards (Total, Admin, User)
+  - Swipe-to-delete pada mobile
+  - Pagination
+- **Create User**: Form tambah user baru dengan:
+  - Validasi email unique
+  - Password confirmation
+  - Toggle role admin
+- **Edit User**: Form edit user dengan:
+  - Update nama, email
+  - Optional password change
+  - Toggle role admin (tidak bisa untuk diri sendiri)
+- **Reset Password**: Admin dapat reset password user lain dengan generated random password
+- **Delete User**: Hapus user dengan cascade delete (transaksi, cash funds, categories)
+- **Admin Middleware**: `EnsureUserIsAdmin` middleware untuk proteksi akses
+
+#### Settings Page Redesign
+- **New Layout**: iOS-style navigation dengan:
+  - Horizontal pill navigation pada mobile
+  - Sidebar navigation pada desktop
+  - Card-based content design
+- **Profile Page**: Redesign dengan Card components dan Bahasa Indonesia
+- **Password Page**: Redesign dengan tips keamanan password
+- **Appearance Page**: Redesign dengan theme cards yang interaktif
+- **Delete Account**: Redesign dengan warning card yang lebih jelas
+
+#### UI/UX Improvements
+- Updated sidebar footer links ke GitHub repo yang benar
+- Mobile-optimized settings navigation (horizontal scrollable pills)
+- Consistent Card-based design across settings pages
+- Indonesian language untuk semua label settings
+
+### Backend Files Created
+- `app/Http/Middleware/EnsureUserIsAdmin.php` - Admin authorization middleware
+- `app/Services/UserService.php` - User CRUD business logic
+- `app/Http/Controllers/UserController.php` - User management controller
+- `app/Http/Requests/StoreUserRequest.php` - Create user validation
+- `app/Http/Requests/UpdateUserRequest.php` - Update user validation
+
+### Frontend Files Created
+- `resources/js/pages/users/Index.vue` - User list with search, filter, stats
+- `resources/js/pages/users/Create.vue` - Create user form
+- `resources/js/pages/users/Edit.vue` - Edit user form with reset password
+
+### Changed
+- Updated `bootstrap/app.php` dengan admin middleware alias
+- Updated `routes/web.php` dengan user management routes
+- Updated `resources/js/layouts/settings/Layout.vue` dengan iOS-style design
+- Updated `resources/js/pages/settings/Profile.vue` dengan Card components
+- Updated `resources/js/pages/settings/Password.vue` dengan tips section
+- Updated `resources/js/pages/settings/Appearance.vue` dengan theme cards
+- Updated `resources/js/components/DeleteUser.vue` dengan modern design
+- Updated `resources/js/components/AppSidebar.vue` dengan admin nav dan GitHub links
+- Updated `resources/js/components/NavMain.vue` dengan optional label prop
+
+### Tests Added
+- `tests/Feature/UserManagementTest.php` (21 tests) - Full coverage untuk user CRUD
+
+### Technical Details
+- Admin middleware registered dengan alias 'admin' di bootstrap/app.php
+- User management routes dilindungi oleh middleware ['auth', 'verified', 'admin']
+- Password reset menggenerate 12 karakter random password
+- Self-protection: Admin tidak bisa delete/reset password diri sendiri
+
+---
+
 ## [0.3.0] - 2025-11-28
 
 ### Added
@@ -254,7 +327,8 @@ Format changelog mengikuti [Keep a Changelog](https://keepachangelog.com/en/1.0.
 
 | Version | Date | Highlights |
 |---------|------|------------|
-| 0.3.0 | 2025-11-28 | User management, Reports page, CSV export, Login redesign |
+| 0.4.0 | 2025-11-28 | User Management CRUD, Settings redesign iOS-style |
+| 0.3.0 | 2025-11-28 | User roles, Reports page, CSV export, Login redesign |
 | 0.2.0 | 2025-11-28 | Receipt documentation - Photo capture & upload |
 | 0.1.0 | 2025-11-27 | Initial release - Core transaction management |
 
@@ -268,7 +342,7 @@ Ini adalah release pertama. Untuk fresh installation:
 
 ```bash
 # Clone repository
-git clone https://github.com/your-repo/simple-petty-cash.git
+git clone https://github.com/ZulfikarHD/simple-petty-cash.git
 
 # Install dependencies
 composer install
