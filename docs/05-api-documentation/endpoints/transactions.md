@@ -56,6 +56,9 @@ GET /transactions?start_date=2025-11-01&end_date=2025-11-30&category_id=1&page=1
                     transaction_date: "2025-11-27",
                     category_id: 1,
                     user_id: 1,
+                    receipt_path: "receipts/receipt_1_20251128_120000_abc12345.jpg",
+                    receipt_url: "http://localhost:8000/storage/receipts/receipt_1_20251128_120000_abc12345.jpg",
+                    has_receipt: true,
                     category: {
                         id: 1,
                         name: "Office Supplies",
@@ -116,9 +119,11 @@ Menampilkan form untuk membuat transaksi baru.
 
 ### Store Transaction
 
-Menyimpan transaksi baru.
+Menyimpan transaksi baru dengan optional receipt photo.
 
 **Endpoint**: `POST /transactions`
+
+**Content-Type**: `multipart/form-data` (jika upload receipt) atau `application/json`
 
 **Request Body**:
 
@@ -128,8 +133,9 @@ Menyimpan transaksi baru.
 | description | string | Yes | max:200 |
 | transaction_date | date | Yes | before_or_equal:today |
 | category_id | integer | Yes | exists:categories,id |
+| receipt | file | No | image, mimes:jpeg,jpg,png,gif,webp, max:5120 |
 
-**Example Request**:
+**Example Request (tanpa receipt)**:
 
 ```bash
 POST /transactions
@@ -141,6 +147,19 @@ Content-Type: application/json
     "transaction_date": "2025-11-27",
     "category_id": 1
 }
+```
+
+**Example Request (dengan receipt)**:
+
+```bash
+POST /transactions
+Content-Type: multipart/form-data
+
+amount: 50000
+description: Beli alat tulis kantor
+transaction_date: 2025-11-27
+category_id: 1
+receipt: [file binary]
 ```
 
 **Success Response**: `302 Redirect to /transactions`
@@ -192,6 +211,9 @@ Menampilkan form untuk edit transaksi.
             description: "Beli alat tulis",
             transaction_date: "2025-11-27",
             category_id: 1,
+            receipt_path: "receipts/receipt_1_20251128_120000_abc12345.jpg",
+            receipt_url: "http://localhost:8000/storage/receipts/receipt_1_20251128_120000_abc12345.jpg",
+            has_receipt: true,
             category: {...}
         },
         categories: [...],
@@ -208,9 +230,11 @@ Jika user mencoba mengakses transaksi milik user lain.
 
 ### Update Transaction
 
-Memperbarui transaksi yang ada.
+Memperbarui transaksi yang ada, termasuk upload/replace/remove receipt.
 
 **Endpoint**: `PUT /transactions/{transaction}`
+
+**Content-Type**: `multipart/form-data` (jika upload receipt) atau `application/json`
 
 **Path Parameters**:
 
@@ -226,8 +250,10 @@ Memperbarui transaksi yang ada.
 | description | string | No | max:200 |
 | transaction_date | date | No | before_or_equal:today |
 | category_id | integer | No | exists:categories,id |
+| receipt | file | No | image, mimes:jpeg,jpg,png,gif,webp, max:5120 |
+| remove_receipt | boolean | No | Set true untuk menghapus receipt existing |
 
-**Example Request**:
+**Example Request (update data)**:
 
 ```bash
 PUT /transactions/1
@@ -239,7 +265,56 @@ Content-Type: application/json
 }
 ```
 
+**Example Request (replace receipt)**:
+
+```bash
+POST /transactions/1
+Content-Type: multipart/form-data
+
+_method: PUT
+amount: 75000
+description: Beli alat tulis dan kertas HVS
+receipt: [file binary]
+```
+
+**Example Request (remove receipt)**:
+
+```bash
+PUT /transactions/1
+Content-Type: application/json
+
+{
+    "remove_receipt": true
+}
+```
+
 **Success Response**: `302 Redirect to /transactions`
+
+---
+
+### Delete Transaction Receipt
+
+Menghapus receipt dari transaksi tanpa menghapus transaksi itu sendiri.
+
+**Endpoint**: `DELETE /transactions/{transaction}/receipt`
+
+**Path Parameters**:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| transaction | integer | Transaction ID |
+
+**Example Request**:
+
+```bash
+DELETE /transactions/1/receipt
+```
+
+**Success Response**: `302 Redirect back`
+
+**Error Response (403 Forbidden)**:
+
+Jika user mencoba menghapus receipt transaksi milik user lain.
 
 ---
 
@@ -272,11 +347,14 @@ DELETE /transactions/1
 ```typescript
 interface Transaction {
     id: number;
-    amount: string;          // Decimal as string
+    amount: string;           // Decimal as string
     description: string;
     transaction_date: string; // YYYY-MM-DD
     category_id: number;
     user_id: number;
+    receipt_path: string | null;  // Path file di storage
+    receipt_url: string | null;   // Full URL untuk akses gambar
+    has_receipt: boolean;         // Computed: apakah ada receipt
     category?: Category;
     user?: User;
     created_at: string;
@@ -310,6 +388,9 @@ interface Category {
 | transaction_date | before_or_equal | Tanggal tidak boleh di masa depan. |
 | category_id | required | Kategori harus dipilih. |
 | category_id | exists | Kategori tidak valid. |
+| receipt | image | File harus berupa gambar. |
+| receipt | mimes | Format gambar harus JPEG, PNG, GIF, atau WebP. |
+| receipt | max | Ukuran gambar maksimal 5MB. |
 
 ## Wayfinder Usage
 
@@ -320,7 +401,8 @@ import {
     store, 
     edit, 
     update, 
-    destroy 
+    destroy,
+    destroyReceipt
 } from '@/actions/App/Http/Controllers/TransactionController';
 
 // List transactions
@@ -330,18 +412,37 @@ index({ query: { page: 2 }}) // { url: '/transactions?page=2', method: 'get' }
 // Create form
 create()                   // { url: '/transactions/create', method: 'get' }
 
-// Store (use with Inertia form)
+// Store (use with Inertia form or FormData for receipt)
 store()                    // { url: '/transactions', method: 'post' }
 
 // Edit form
 edit(1)                    // { url: '/transactions/1/edit', method: 'get' }
 edit({ id: 1 })           // Same result
 
-// Update
+// Update (use FormData for receipt upload)
 update(1)                  // { url: '/transactions/1', method: 'put' }
 
-// Delete
+// Delete transaction
 destroy(1)                 // { url: '/transactions/1', method: 'delete' }
+
+// Delete receipt only
+destroyReceipt(1)          // { url: '/transactions/1/receipt', method: 'delete' }
+```
+
+### Upload Receipt Example
+
+```typescript
+// Creating transaction with receipt using FormData
+const formData = new FormData();
+formData.append('amount', '50000');
+formData.append('description', 'Beli alat tulis');
+formData.append('transaction_date', '2025-11-28');
+formData.append('category_id', '1');
+formData.append('receipt', fileInput.files[0]);
+
+router.post(store().url, formData, {
+    forceFormData: true,
+});
 ```
 
 ## Error Codes

@@ -2,12 +2,13 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { store, index } from '@/actions/App/Http/Controllers/TransactionController';
 import type { BreadcrumbItem, Category } from '@/types';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import {
     Calendar,
     Check,
     DollarSign,
     FileText,
+    Receipt,
     Tag,
     Wallet,
 } from 'lucide-vue-next';
@@ -23,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/InputError.vue';
+import ReceiptUploader from '@/components/ReceiptUploader.vue';
 import { dashboard } from '@/routes';
 
 interface Props {
@@ -38,12 +40,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Catat Pengeluaran', href: '#' },
 ];
 
-const form = useForm({
-    amount: '',
-    description: '',
-    transaction_date: new Date().toISOString().split('T')[0],
-    category_id: '',
-});
+const amount = ref('');
+const description = ref('');
+const transactionDate = ref(new Date().toISOString().split('T')[0]);
+const categoryId = ref('');
+const receipt = ref<File | null>(null);
+const errors = ref<Record<string, string>>({});
+const processing = ref(false);
 
 const selectedCategory = ref<Category | null>(null);
 const showSuccess = ref(false);
@@ -60,7 +63,7 @@ const formatCurrency = (amount: number | string): string => {
 
 const selectCategory = (category: Category) => {
     selectedCategory.value = category;
-    form.category_id = category.id.toString();
+    categoryId.value = category.id.toString();
 
     // Haptic feedback simulation
     if (navigator.vibrate) {
@@ -81,7 +84,7 @@ const formatAmountInput = (event: Event) => {
     if (parts[1] && parts[1].length > 2) {
         value = parts[0] + '.' + parts[1].substring(0, 2);
     }
-    form.amount = value;
+    amount.value = value;
 };
 
 const submit = () => {
@@ -90,20 +93,40 @@ const submit = () => {
         navigator.vibrate([10, 50, 10]);
     }
 
-    form.post(store().url, {
+    processing.value = true;
+    errors.value = {};
+
+    const formData = new FormData();
+    formData.append('amount', amount.value);
+    formData.append('description', description.value);
+    formData.append('transaction_date', transactionDate.value);
+    formData.append('category_id', categoryId.value);
+
+    if (receipt.value) {
+        formData.append('receipt', receipt.value);
+    }
+
+    router.post(store().url, formData, {
         preserveScroll: true,
+        forceFormData: true,
         onSuccess: () => {
             showSuccess.value = true;
             setTimeout(() => {
                 showSuccess.value = false;
             }, 2000);
         },
+        onError: (err) => {
+            errors.value = err as Record<string, string>;
+        },
+        onFinish: () => {
+            processing.value = false;
+        },
     });
 };
 
 const remainingBalance = () => {
-    const amount = parseFloat(form.amount) || 0;
-    return props.currentBalance - amount;
+    const amountNum = parseFloat(amount.value) || 0;
+    return props.currentBalance - amountNum;
 };
 </script>
 
@@ -141,7 +164,7 @@ const remainingBalance = () => {
                                 {{ formatCurrency(currentBalance) }}
                             </p>
                         </div>
-                        <div v-if="form.amount" class="text-right">
+                        <div v-if="amount" class="text-right">
                             <p class="text-sm text-blue-200">Sisa Setelah</p>
                             <p
                                 class="text-2xl font-bold"
@@ -182,19 +205,19 @@ const remainingBalance = () => {
                                 </span>
                                 <Input
                                     id="amount"
-                                    v-model="form.amount"
+                                    v-model="amount"
                                     @input="formatAmountInput"
                                     type="text"
                                     inputmode="decimal"
                                     placeholder="0"
                                     class="h-14 pl-12 text-2xl font-bold"
-                                    :class="{ 'border-red-500': form.errors.amount }"
+                                    :class="{ 'border-red-500': errors.amount }"
                                     required
                                 />
                             </div>
-                            <InputError :message="form.errors.amount" />
+                            <InputError :message="errors.amount" />
                             <p
-                                v-if="remainingBalance() < 0 && form.amount"
+                                v-if="remainingBalance() < 0 && amount"
                                 class="text-sm text-red-500"
                             >
                                 Saldo tidak mencukupi!
@@ -250,7 +273,7 @@ const remainingBalance = () => {
                                     </span>
                                 </button>
                             </div>
-                            <InputError :message="form.errors.category_id" />
+                            <InputError :message="errors.category_id" />
                         </div>
 
                         <!-- Description Input -->
@@ -261,18 +284,18 @@ const remainingBalance = () => {
                             </Label>
                             <Input
                                 id="description"
-                                v-model="form.description"
+                                v-model="description"
                                 type="text"
                                 placeholder="Contoh: Beli alat tulis kantor"
                                 maxlength="200"
                                 class="h-12"
-                                :class="{ 'border-red-500': form.errors.description }"
+                                :class="{ 'border-red-500': errors.description }"
                                 required
                             />
                             <div class="flex items-center justify-between">
-                                <InputError :message="form.errors.description" />
+                                <InputError :message="errors.description" />
                                 <span class="text-xs text-gray-400">
-                                    {{ form.description.length }}/200
+                                    {{ description.length }}/200
                                 </span>
                             </div>
                         </div>
@@ -285,14 +308,27 @@ const remainingBalance = () => {
                             </Label>
                             <Input
                                 id="transaction_date"
-                                v-model="form.transaction_date"
+                                v-model="transactionDate"
                                 type="date"
                                 :max="new Date().toISOString().split('T')[0]"
                                 class="h-12"
-                                :class="{ 'border-red-500': form.errors.transaction_date }"
+                                :class="{ 'border-red-500': errors.transaction_date }"
                                 required
                             />
-                            <InputError :message="form.errors.transaction_date" />
+                            <InputError :message="errors.transaction_date" />
+                        </div>
+
+                        <!-- Receipt Upload -->
+                        <div class="space-y-2">
+                            <Label class="flex items-center gap-2">
+                                <Receipt class="h-4 w-4 text-gray-500" />
+                                Bukti Transaksi (Opsional)
+                            </Label>
+                            <ReceiptUploader
+                                v-model="receipt"
+                                :error="errors.receipt"
+                                :disabled="processing"
+                            />
                         </div>
 
                         <!-- Submit Button -->
@@ -301,11 +337,11 @@ const remainingBalance = () => {
                             class="h-14 w-full text-lg font-semibold transition-all duration-200 active:scale-[0.98]"
                             :class="{
                                 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700':
-                                    !form.processing,
+                                    !processing,
                             }"
-                            :disabled="form.processing || remainingBalance() < 0"
+                            :disabled="processing || remainingBalance() < 0"
                         >
-                            <span v-if="form.processing" class="flex items-center gap-2">
+                            <span v-if="processing" class="flex items-center gap-2">
                                 <svg class="h-5 w-5 animate-spin" viewBox="0 0 24 24">
                                     <circle
                                         class="opacity-25"

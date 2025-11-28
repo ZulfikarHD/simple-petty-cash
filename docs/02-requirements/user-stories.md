@@ -118,25 +118,29 @@ Dokumen ini merupakan kompilasi user stories untuk Petty Cash App yang bertujuan
 
 **Story ID**: US-2.1  
 **Story Points**: 8  
-**Status**: 🔜 Planned
+**Status**: ✅ Done
 
 **As a** user  
 **I want to** take or upload a photo of a receipt  
 **So that** I have documentation for each expense
 
 **Acceptance Criteria**:
-- [ ] User dapat membuka kamera untuk mengambil foto receipt
-- [ ] User dapat upload foto yang sudah ada dari galeri
-- [ ] Foto dilampirkan ke transaksi spesifik
-- [ ] Foto dikompresi untuk efisiensi penyimpanan
-- [ ] User dapat melihat foto ukuran penuh dengan tap thumbnail
-- [ ] User dapat menghapus atau mengganti foto receipt
+- [x] User dapat membuka kamera untuk mengambil foto receipt
+- [x] User dapat upload foto yang sudah ada dari galeri
+- [x] Foto dilampirkan ke transaksi spesifik
+- [x] Foto dikompresi untuk efisiensi penyimpanan
+- [x] User dapat melihat foto ukuran penuh dengan tap thumbnail
+- [x] User dapat menghapus atau mengganti foto receipt
 
 **Technical Notes**:
-- Storage: Laravel filesystem (local/S3)
-- Image processing: Intervention Image
-- Max file size: 5MB
-- Supported formats: JPEG, PNG
+- Storage: Laravel public disk (`storage/app/public/receipts/`)
+- Image processing: GD library (native PHP)
+- Max file size: 5MB (before compression)
+- Compression: 1200px max width, 80% JPEG quality
+- Supported formats: JPEG, JPG, PNG, GIF, WebP
+- Service: `ReceiptService`
+- Components: `ReceiptUploader.vue`, `ReceiptViewer.vue`
+- Endpoint untuk delete receipt: `DELETE /transactions/{transaction}/receipt`
 
 ---
 
@@ -277,9 +281,9 @@ Dokumen ini merupakan kompilasi user stories untuk Petty Cash App yang bertujuan
 | Sprint | Total Points | Completed | Remaining |
 |--------|--------------|-----------|-----------|
 | Sprint 1 | 16 | 16 | 0 |
-| Sprint 2 | 18 | 5 | 13 |
+| Sprint 2 | 18 | 13 | 5 |
 | Sprint 3 | 18 | 8 | 10 |
-| **Total** | **52** | **29** | **23** |
+| **Total** | **52** | **37** | **15** |
 
 ## Story Status Legend
 

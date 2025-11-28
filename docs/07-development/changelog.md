@@ -11,10 +11,58 @@ Format changelog mengikuti [Keep a Changelog](https://keepachangelog.com/en/1.0.
 ## [Unreleased]
 
 ### Planned
-- Receipt photo capture dan upload
 - Multi-user support dengan role management
 - Advanced reporting dengan export PDF
 - Budget limits dan alerts
+- OCR untuk automatic receipt data extraction
+
+---
+
+## [0.2.0] - 2025-11-28
+
+### Added
+
+#### Receipt Documentation (Epic 3)
+- **Receipt Photo Capture**: User dapat mengambil foto struk langsung dari kamera device
+- **Gallery Upload**: User dapat upload foto struk dari galeri dengan drag & drop support
+- **Image Compression**: Foto dikompresi otomatis (max 1200px width, 80% JPEG quality) untuk efisiensi storage
+- **Full-Screen Viewer**: Tampilan foto struk full-screen dengan fitur:
+  - Zoom in/out controls
+  - Rotation
+  - Download functionality
+  - Pan/drag saat zoomed
+  - Keyboard shortcuts
+- **Receipt Indicator**: Ikon hijau pada daftar transaksi untuk menandakan transaksi yang memiliki struk
+- **Receipt Management**: User dapat view, replace, atau delete receipt dari transaksi
+
+#### Backend Files Created
+- `app/Services/ReceiptService.php` - Service untuk handling upload, compression, dan deletion receipt
+- `database/migrations/*_add_receipt_path_to_transactions_table.php` - Migration untuk kolom receipt_path
+
+#### Frontend Files Created
+- `resources/js/components/ReceiptUploader.vue` - Komponen upload dengan camera/gallery picker
+- `resources/js/components/ReceiptViewer.vue` - Komponen full-screen image viewer
+
+#### Tests Added
+- `tests/Feature/ReceiptUploadTest.php` (13 tests) - Test coverage untuk receipt functionality
+
+### Changed
+- Updated `app/Models/Transaction.php` dengan receipt_path fillable dan accessors (receipt_url, has_receipt)
+- Updated `app/Http/Controllers/TransactionController.php` dengan receipt handling di store, update, dan destroy
+- Updated `app/Http/Requests/StoreTransactionRequest.php` dengan receipt validation
+- Updated `app/Http/Requests/UpdateTransactionRequest.php` dengan receipt dan remove_receipt validation
+- Updated `routes/web.php` dengan endpoint `DELETE /transactions/{transaction}/receipt`
+- Updated `resources/js/pages/transactions/Create.vue` dengan ReceiptUploader integration
+- Updated `resources/js/pages/transactions/Edit.vue` dengan receipt view/replace/delete
+- Updated `resources/js/pages/transactions/Index.vue` dengan receipt indicator dan viewer
+- Updated `resources/js/types/index.d.ts` dengan receipt_path, receipt_url, has_receipt fields
+
+### Technical Details
+- Storage: Laravel public disk (`storage/app/public/receipts/`)
+- Supported formats: JPEG, JPG, PNG, GIF, WebP
+- Max file size: 5MB (before compression)
+- Image compression: GD library (max 1200px width, 80% quality)
+- File naming: `receipt_{user_id}_{timestamp}_{random}.jpg`
 
 ---
 
@@ -92,7 +140,7 @@ Format changelog mengikuti [Keep a Changelog](https://keepachangelog.com/en/1.0.
 - TypeScript type safety
 - Wayfinder route generation
 - SQLite database
-- PHPUnit testing (62 tests, 226 assertions)
+- PHPUnit testing (68 tests, 238 assertions)
 
 ### Backend Files Created
 - `app/Models/Category.php`
@@ -137,6 +185,7 @@ Format changelog mengikuti [Keep a Changelog](https://keepachangelog.com/en/1.0.
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 0.2.0 | 2025-11-28 | Receipt documentation - Photo capture & upload |
 | 0.1.0 | 2025-11-27 | Initial release - Core transaction management |
 
 ---

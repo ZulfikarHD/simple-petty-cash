@@ -31,6 +31,7 @@ Dokumen ini merupakan spesifikasi database schema untuk Petty Cash App yang bert
              │    │ amount          │                                      │
              │    │ description     │                                      │
              │    │ transaction_date│                                      │
+             │    │ receipt_path    │                                      │
              │    │ created_at      │                                      │
              │    │ updated_at      │                                      │
              │    └─────────────────┘                                      │
@@ -116,7 +117,7 @@ Tabel `cash_funds` menyimpan catatan penambahan dana ke kas kecil, baik initial 
 
 ### 4. transactions
 
-Tabel `transactions` menyimpan catatan pengeluaran kas kecil.
+Tabel `transactions` menyimpan catatan pengeluaran kas kecil beserta bukti transaksi (receipt).
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
@@ -125,16 +126,25 @@ Tabel `transactions` menyimpan catatan pengeluaran kas kecil.
 | description | VARCHAR(200) | NOT NULL | Deskripsi transaksi |
 | transaction_date | DATE | NOT NULL | Tanggal transaksi |
 | category_id | BIGINT | NOT NULL, FK | Kategori pengeluaran |
+| receipt_path | VARCHAR(255) | NULLABLE | Path file foto struk/bukti transaksi |
 | user_id | BIGINT | NOT NULL, FK | User yang membuat |
 | created_at | TIMESTAMP | NOT NULL | Waktu pembuatan |
 | updated_at | TIMESTAMP | NOT NULL | Waktu update terakhir |
+
+**Computed Attributes (Eloquent Accessors):**
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| receipt_url | string\|null | Full URL untuk akses gambar receipt |
+| has_receipt | boolean | Apakah transaksi memiliki receipt |
 
 **Indexes:**
 - PRIMARY KEY (`id`)
 - FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE CASCADE
 - FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 
-**Migration File:** `2025_11_27_085056_create_transactions_table.php`
+**Migration Files:**
+- `2025_11_27_085056_create_transactions_table.php`
+- `2025_11_28_011942_add_receipt_path_to_transactions_table.php`
 
 ## Relationships
 

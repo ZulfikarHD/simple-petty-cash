@@ -54,6 +54,9 @@ export interface Transaction {
     transaction_date: string;
     category_id: number;
     user_id: number;
+    receipt_path: string | null;
+    receipt_url: string | null;
+    has_receipt: boolean;
     category?: Category;
     user?: User;
     created_at: string;

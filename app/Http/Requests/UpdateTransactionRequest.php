@@ -26,6 +26,8 @@ class UpdateTransactionRequest extends FormRequest
             'description' => ['sometimes', 'string', 'max:200'],
             'transaction_date' => ['sometimes', 'date', 'before_or_equal:today'],
             'category_id' => ['sometimes', 'exists:categories,id'],
+            'receipt' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif,webp', 'max:5120'],
+            'remove_receipt' => ['nullable', 'boolean'],
         ];
     }
 
@@ -42,6 +44,9 @@ class UpdateTransactionRequest extends FormRequest
             'description.max' => 'Deskripsi maksimal 200 karakter.',
             'transaction_date.before_or_equal' => 'Tanggal tidak boleh di masa depan.',
             'category_id.exists' => 'Kategori tidak valid.',
+            'receipt.image' => 'File harus berupa gambar.',
+            'receipt.mimes' => 'Format gambar harus JPEG, PNG, GIF, atau WebP.',
+            'receipt.max' => 'Ukuran gambar maksimal 5MB.',
         ];
     }
 }

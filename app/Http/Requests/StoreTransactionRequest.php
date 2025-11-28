@@ -26,6 +26,7 @@ class StoreTransactionRequest extends FormRequest
             'description' => ['required', 'string', 'max:200'],
             'transaction_date' => ['required', 'date', 'before_or_equal:today'],
             'category_id' => ['required', 'exists:categories,id'],
+            'receipt' => ['nullable', 'image', 'mimes:jpeg,jpg,png,gif,webp', 'max:5120'],
         ];
     }
 
@@ -46,6 +47,9 @@ class StoreTransactionRequest extends FormRequest
             'transaction_date.before_or_equal' => 'Tanggal tidak boleh di masa depan.',
             'category_id.required' => 'Kategori harus dipilih.',
             'category_id.exists' => 'Kategori tidak valid.',
+            'receipt.image' => 'File harus berupa gambar.',
+            'receipt.mimes' => 'Format gambar harus JPEG, PNG, GIF, atau WebP.',
+            'receipt.max' => 'Ukuran gambar maksimal 5MB.',
         ];
     }
 }

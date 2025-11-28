@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
 use App\Models\Transaction;
+use App\Services\ReceiptService;
 use App\Services\TransactionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,7 +15,8 @@ use Inertia\Response;
 class TransactionController extends Controller
 {
     public function __construct(
-        private TransactionService $transactionService
+        private TransactionService $transactionService,
+        private ReceiptService $receiptService
     ) {}
 
     /**
@@ -68,6 +70,17 @@ class TransactionController extends Controller
             ]);
         }
 
+        // Handle receipt upload
+        if ($request->hasFile('receipt')) {
+            $data['receipt_path'] = $this->receiptService->storeReceipt(
+                $request->file('receipt'),
+                $user->id
+            );
+        }
+
+        // Remove receipt key as it's not a model attribute
+        unset($data['receipt']);
+
         $this->transactionService->createTransaction($user, $data);
 
         return redirect()->route('transactions.index')
@@ -111,6 +124,24 @@ class TransactionController extends Controller
             }
         }
 
+        // Handle receipt removal
+        if (! empty($data['remove_receipt']) && $transaction->receipt_path) {
+            $this->receiptService->deleteReceipt($transaction->receipt_path);
+            $data['receipt_path'] = null;
+        }
+
+        // Handle receipt upload/replace
+        if ($request->hasFile('receipt')) {
+            $data['receipt_path'] = $this->receiptService->replaceReceipt(
+                $transaction->receipt_path,
+                $request->file('receipt'),
+                $user->id
+            );
+        }
+
+        // Remove non-model attributes
+        unset($data['receipt'], $data['remove_receipt']);
+
         $this->transactionService->updateTransaction($transaction, $data);
 
         return redirect()->route('transactions.index')
@@ -124,10 +155,30 @@ class TransactionController extends Controller
     {
         $this->authorizeTransaction($transaction);
 
+        // Delete receipt file if exists
+        if ($transaction->receipt_path) {
+            $this->receiptService->deleteReceipt($transaction->receipt_path);
+        }
+
         $this->transactionService->deleteTransaction($transaction);
 
         return redirect()->route('transactions.index')
             ->with('success', 'Transaksi berhasil dihapus.');
+    }
+
+    /**
+     * Remove the receipt from a transaction.
+     */
+    public function destroyReceipt(Transaction $transaction): RedirectResponse
+    {
+        $this->authorizeTransaction($transaction);
+
+        if ($transaction->receipt_path) {
+            $this->receiptService->deleteReceipt($transaction->receipt_path);
+            $transaction->update(['receipt_path' => null]);
+        }
+
+        return back()->with('success', 'Bukti transaksi berhasil dihapus.');
     }
 
     /**

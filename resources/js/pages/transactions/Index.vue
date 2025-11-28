@@ -14,6 +14,7 @@ import {
     ArrowRight,
     Calendar,
     Filter,
+    ImageIcon,
     Pencil,
     Plus,
     Search,
@@ -22,6 +23,7 @@ import {
     X,
 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
+import ReceiptViewer from '@/components/ReceiptViewer.vue';
 import {
     Card,
     CardContent,
@@ -63,6 +65,18 @@ const breadcrumbs: BreadcrumbItem[] = [
 const showFilters = ref(false);
 const deleteDialogOpen = ref(false);
 const transactionToDelete = ref<Transaction | null>(null);
+const showReceiptViewer = ref(false);
+const selectedReceiptUrl = ref<string | null>(null);
+
+const viewReceipt = (receiptUrl: string | null) => {
+    if (receiptUrl) {
+        selectedReceiptUrl.value = receiptUrl;
+        showReceiptViewer.value = true;
+        if (navigator.vibrate) {
+            navigator.vibrate(10);
+        }
+    }
+};
 
 const startDate = ref(props.filters.start_date || '');
 const endDate = ref(props.filters.end_date || '');
@@ -390,9 +404,20 @@ const transactionsWithBalance = computed(() => {
                                             />
                                         </div>
                                         <div class="min-w-0 flex-1">
-                                            <p class="line-clamp-1 font-medium text-gray-900 dark:text-white">
-                                                {{ transaction.description }}
-                                            </p>
+                                            <div class="flex items-center gap-2">
+                                                <p class="line-clamp-1 font-medium text-gray-900 dark:text-white">
+                                                    {{ transaction.description }}
+                                                </p>
+                                                <!-- Receipt indicator -->
+                                                <button
+                                                    v-if="transaction.has_receipt"
+                                                    type="button"
+                                                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 transition-transform active:scale-90 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                                    @click.stop="viewReceipt(transaction.receipt_url)"
+                                                >
+                                                    <ImageIcon class="h-3.5 w-3.5" />
+                                                </button>
+                                            </div>
                                             <p class="text-sm text-gray-500">
                                                 {{ transaction.category?.name }}
                                             </p>
@@ -490,6 +515,13 @@ const transactionsWithBalance = computed(() => {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+
+        <!-- Receipt Viewer Dialog -->
+        <ReceiptViewer
+            v-model:open="showReceiptViewer"
+            :image-url="selectedReceiptUrl"
+            title="Bukti Transaksi"
+        />
     </AppLayout>
 </template>
 

@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class Transaction extends Model
 {
@@ -17,7 +19,15 @@ class Transaction extends Model
         'transaction_date',
         'category_id',
         'user_id',
+        'receipt_path',
     ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = ['receipt_url', 'has_receipt'];
 
     /**
      * @return array<string, string>
@@ -44,5 +54,35 @@ class Transaction extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Get the full URL for the receipt image.
+     *
+     * @return Attribute<string|null, never>
+     */
+    protected function receiptUrl(): Attribute
+    {
+        return Attribute::make(
+            get: function (): ?string {
+                if (empty($this->receipt_path)) {
+                    return null;
+                }
+
+                return Storage::disk('public')->url($this->receipt_path);
+            }
+        );
+    }
+
+    /**
+     * Check if the transaction has a receipt attached.
+     *
+     * @return Attribute<bool, never>
+     */
+    protected function hasReceipt(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): bool => ! empty($this->receipt_path)
+        );
     }
 }

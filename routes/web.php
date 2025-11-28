@@ -20,6 +20,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('transactions', TransactionController::class)
         ->except(['show']);
 
+    Route::delete('transactions/{transaction}/receipt', [TransactionController::class, 'destroyReceipt'])
+        ->name('transactions.receipt.destroy');
+
     Route::get('cash-fund', [CashFundController::class, 'create'])->name('cash-fund.create');
     Route::post('cash-fund', [CashFundController::class, 'store'])->name('cash-fund.store');
 
