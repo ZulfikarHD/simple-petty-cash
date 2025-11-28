@@ -11,10 +11,79 @@ Format changelog mengikuti [Keep a Changelog](https://keepachangelog.com/en/1.0.
 ## [Unreleased]
 
 ### Planned
-- Multi-user support dengan role management
 - Advanced reporting dengan export PDF
 - Budget limits dan alerts
 - OCR untuk automatic receipt data extraction
+- Push notifications untuk low balance
+
+---
+
+## [0.3.0] - 2025-11-28
+
+### Added
+
+#### User Management (Epic 4)
+- **Admin Role**: Kolom `is_admin` pada tabel users untuk membedakan admin dan user biasa
+- **User Tracking**: Setiap transaksi menampilkan user yang membuatnya (untuk admin)
+- **Filter by User**: Admin dapat filter transaksi berdasarkan user tertentu
+- **Multi-user View**: Admin dapat melihat semua transaksi dari seluruh user
+
+#### Reporting & Export (Epic 5)
+- **Reports Page**: Halaman laporan dengan tampilan summary dan detail transaksi
+- **Summary Statistics**:
+  - Total transaksi
+  - Total pengeluaran
+  - Saldo awal periode
+  - Saldo akhir periode
+- **Category Breakdown**: Visualisasi pengeluaran per kategori dengan progress bar
+- **User Breakdown**: Visualisasi pengeluaran per user (untuk admin)
+- **Date Range Filter**: Filter laporan berdasarkan periode tanggal
+- **Category Filter**: Filter laporan berdasarkan kategori
+- **CSV Export**: Export laporan ke format CSV dengan:
+  - Informasi periode
+  - Summary statistik
+  - Breakdown per kategori
+  - Breakdown per user (untuk admin)
+  - Detail transaksi lengkap
+
+#### Authentication Improvements
+- **Login Page Redesign**: Tampilan login dengan iOS-style design:
+  - Glass morphism effect
+  - Animated background gradient orbs
+  - Spring animations
+  - Responsive dark mode
+- **Registration Disabled**: Fitur registrasi dinonaktifkan, hanya admin yang dapat membuat user baru
+- **Welcome Page Removed**: Halaman welcome dihapus, redirect langsung ke login/dashboard
+
+### Backend Files Created
+- `app/Http/Controllers/ReportController.php` - Controller untuk report generation dan export
+- `app/Services/ReportService.php` - Service untuk kalkulasi report dan CSV generation
+- `database/migrations/*_add_is_admin_to_users_table.php` - Migration untuk kolom is_admin
+
+### Frontend Files Created
+- `resources/js/pages/reports/Index.vue` - Halaman laporan dengan summary dan detail
+
+### Changed
+- Updated `app/Models/User.php` dengan is_admin attribute dan isAdmin() method
+- Updated `app/Services/TransactionService.php` dengan admin access untuk semua transaksi
+- Updated `app/Http/Controllers/TransactionController.php` dengan user filter dan isAdmin flag
+- Updated `resources/js/components/AppSidebar.vue` dengan menu Laporan
+- Updated `resources/js/pages/transactions/Index.vue` dengan user display dan filter
+- Updated `resources/js/pages/auth/Login.vue` dengan desain baru iOS-style
+- Updated `resources/js/types/index.d.ts` dengan is_admin, ReportFilters, ReportSummary
+- Updated `config/fortify.php` dengan Features::registration() dinonaktifkan
+- Updated `routes/web.php` dengan report routes dan redirect untuk home
+
+### Removed
+- `resources/js/pages/Welcome.vue` - Welcome page dihapus
+- `resources/js/pages/auth/Register.vue` - Register page dihapus
+
+### Technical Details
+- Navigation menu ditambah dengan link ke halaman Laporan
+- Admin dapat melihat dan filter semua transaksi
+- User biasa hanya dapat melihat transaksinya sendiri
+- Export CSV menggunakan StreamedResponse untuk efisiensi memory
+- Filter berlaku untuk tampilan dan export secara konsisten
 
 ---
 
@@ -185,6 +254,7 @@ Format changelog mengikuti [Keep a Changelog](https://keepachangelog.com/en/1.0.
 
 | Version | Date | Highlights |
 |---------|------|------------|
+| 0.3.0 | 2025-11-28 | User management, Reports page, CSV export, Login redesign |
 | 0.2.0 | 2025-11-28 | Receipt documentation - Photo capture & upload |
 | 0.1.0 | 2025-11-27 | Initial release - Core transaction management |
 

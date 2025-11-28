@@ -78,15 +78,23 @@ class TransactionService
 
     /**
      * Get transactions for a user with optional filtering.
+     * Admin dapat melihat semua transaksi, user biasa hanya melihat miliknya.
      *
-     * @param  array{start_date?: string, end_date?: string, category_id?: int}  $filters
+     * @param  array{start_date?: string, end_date?: string, category_id?: int, user_id?: int}  $filters
      */
     public function getTransactions(User $user, array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = $user->transactions()
-            ->with('category')
+        $query = Transaction::query()
+            ->with(['category', 'user'])
             ->orderBy('transaction_date', 'desc')
             ->orderBy('created_at', 'desc');
+
+        // Admin dapat melihat semua transaksi, user biasa hanya melihat miliknya
+        if (! $user->isAdmin()) {
+            $query->where('user_id', $user->id);
+        } elseif (isset($filters['user_id']) && $filters['user_id']) {
+            $query->where('user_id', $filters['user_id']);
+        }
 
         if (isset($filters['start_date'])) {
             $query->whereDate('transaction_date', '>=', $filters['start_date']);

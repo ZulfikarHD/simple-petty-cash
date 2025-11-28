@@ -32,6 +32,7 @@ export interface User {
     email: string;
     avatar?: string;
     email_verified_at: string | null;
+    is_admin: boolean;
     created_at: string;
     updated_at: string;
 }
@@ -103,3 +104,19 @@ export interface PaginatedData<T> {
 }
 
 export type BreadcrumbItemType = BreadcrumbItem;
+
+export interface ReportFilters {
+    start_date: string;
+    end_date: string;
+    category_id?: number | null;
+    user_id?: number | null;
+}
+
+export interface ReportSummary {
+    total_transactions: number;
+    total_amount: number;
+    beginning_balance: number;
+    ending_balance: number;
+    by_category: SpendingByCategory[];
+    by_user: { user_id: number; user_name: string; total: string; count: number }[];
+}

@@ -25,17 +25,22 @@ class TransactionController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
-        $filters = $request->only(['start_date', 'end_date', 'category_id']);
+        $filters = $request->only(['start_date', 'end_date', 'category_id', 'user_id']);
 
         $transactions = $this->transactionService->getTransactions($user, $filters);
         $categories = $this->transactionService->getCategories($user);
         $currentBalance = $this->transactionService->getCurrentBalance($user);
+
+        // Daftar user untuk filter (hanya untuk admin)
+        $users = $user->isAdmin() ? \App\Models\User::select('id', 'name')->orderBy('name')->get() : collect([]);
 
         return Inertia::render('transactions/Index', [
             'transactions' => $transactions,
             'categories' => $categories,
             'currentBalance' => $currentBalance,
             'filters' => $filters,
+            'users' => $users,
+            'isAdmin' => $user->isAdmin(),
         ]);
     }
 
@@ -182,11 +187,12 @@ class TransactionController extends Controller
     }
 
     /**
-     * Authorize that the user owns this transaction.
+     * Authorize that the user owns this transaction or is admin.
      */
     private function authorizeTransaction(Transaction $transaction): void
     {
-        if ($transaction->user_id !== request()->user()->id) {
+        $user = request()->user();
+        if (! $user->isAdmin() && $transaction->user_id !== $user->id) {
             abort(403);
         }
     }

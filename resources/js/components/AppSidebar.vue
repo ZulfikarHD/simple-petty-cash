@@ -14,9 +14,10 @@ import {
 import { dashboard } from '@/routes';
 import { index as transactionsIndex, create as createTransaction } from '@/actions/App/Http/Controllers/TransactionController';
 import { create as createCashFund } from '@/actions/App/Http/Controllers/CashFundController';
+import { index as reportsIndex } from '@/actions/App/Http/Controllers/ReportController';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, List, Plus, Wallet } from 'lucide-vue-next';
+import { BookOpen, FileBarChart, Folder, LayoutGrid, List, Plus, Wallet } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -29,6 +30,11 @@ const mainNavItems: NavItem[] = [
         title: 'Transaksi',
         href: transactionsIndex(),
         icon: List,
+    },
+    {
+        title: 'Laporan',
+        href: reportsIndex(),
+        icon: FileBarChart,
     },
     {
         title: 'Catat Pengeluaran',

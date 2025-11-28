@@ -7,6 +7,7 @@ import type {
     Category,
     PaginatedData,
     Transaction,
+    User,
 } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import {
@@ -19,6 +20,7 @@ import {
     Plus,
     Search,
     Trash2,
+    User as UserIcon,
     Wallet,
     X,
 } from 'lucide-vue-next';
@@ -52,7 +54,10 @@ interface Props {
         start_date?: string;
         end_date?: string;
         category_id?: number;
+        user_id?: number;
     };
+    users: User[];
+    isAdmin: boolean;
 }
 
 const props = defineProps<Props>();
@@ -81,6 +86,7 @@ const viewReceipt = (receiptUrl: string | null) => {
 const startDate = ref(props.filters.start_date || '');
 const endDate = ref(props.filters.end_date || '');
 const categoryId = ref(props.filters.category_id?.toString() || '');
+const userId = ref(props.filters.user_id?.toString() || '');
 
 // Swipe state for each transaction
 const swipeStates = ref<Record<number, number>>({});
@@ -110,6 +116,7 @@ const applyFilters = () => {
     if (startDate.value) params.start_date = startDate.value;
     if (endDate.value) params.end_date = endDate.value;
     if (categoryId.value) params.category_id = categoryId.value;
+    if (userId.value) params.user_id = userId.value;
 
     router.get(index().url, params, {
         preserveState: true,
@@ -122,6 +129,7 @@ const clearFilters = () => {
     startDate.value = '';
     endDate.value = '';
     categoryId.value = '';
+    userId.value = '';
     router.get(index().url, {}, {
         preserveState: true,
         preserveScroll: true,
@@ -130,7 +138,7 @@ const clearFilters = () => {
 };
 
 const hasActiveFilters = computed(() => {
-    return props.filters.start_date || props.filters.end_date || props.filters.category_id;
+    return props.filters.start_date || props.filters.end_date || props.filters.category_id || props.filters.user_id;
 });
 
 // Swipe handlers
@@ -246,7 +254,7 @@ const transactionsWithBalance = computed(() => {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div class="grid gap-4 sm:grid-cols-3">
+                    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <div>
                             <Label class="text-sm">Tanggal Mulai</Label>
                             <div class="relative mt-1">
@@ -285,6 +293,22 @@ const transactionsWithBalance = computed(() => {
                                 </option>
                             </select>
                         </div>
+                        <div v-if="isAdmin">
+                            <Label class="text-sm">User</Label>
+                            <select
+                                v-model="userId"
+                                class="border-input bg-background mt-1 flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1"
+                            >
+                                <option value="">Semua User</option>
+                                <option
+                                    v-for="user in users"
+                                    :key="user.id"
+                                    :value="user.id"
+                                >
+                                    {{ user.name }}
+                                </option>
+                            </select>
+                        </div>
                     </div>
                     <div class="mt-4 flex justify-end gap-2">
                         <Button variant="outline" @click="clearFilters">
@@ -319,6 +343,15 @@ const transactionsWithBalance = computed(() => {
                         {{
                             categories.find((c) => c.id === filters.category_id)?.name
                         }}
+                    </span>
+                </div>
+                <div
+                    v-if="filters.user_id && isAdmin"
+                    class="flex items-center gap-1 rounded-full bg-green-100 px-3 py-1 text-sm text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                >
+                    <UserIcon class="h-3 w-3" />
+                    <span>
+                        {{ users.find((u) => u.id === filters.user_id)?.name }}
                     </span>
                 </div>
                 <button
@@ -420,6 +453,9 @@ const transactionsWithBalance = computed(() => {
                                             </div>
                                             <p class="text-sm text-gray-500">
                                                 {{ transaction.category?.name }}
+                                                <span v-if="isAdmin && transaction.user" class="ml-1">
+                                                    • {{ transaction.user.name }}
+                                                </span>
                                             </p>
                                             <p class="text-xs text-gray-400">
                                                 {{ formatDate(transaction.transaction_date) }}
